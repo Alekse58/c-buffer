@@ -3,6 +3,8 @@
 #include <fstream>
 #include <thread>
 #include <mutex>
+
+
 using namespace std;
 void Potok_One()
 {
@@ -61,8 +63,8 @@ void Potok_One()
 		}
 
 		cout << endl;
-		ofstream bey;
-		bey.open("C:\\Users\\артем\\Desktop\\txt.txt");
+		ofstream bey("txt.txt");
+		bey.open("txt.txt");
 		if (bey.is_open()) {
 			cout << "Файл открыт. Запись запущена." << endl;
 			bey << str;
@@ -83,7 +85,7 @@ void Potok_Two()
 		string str1;
 
 		ifstream bey;
-		bey.open("C:\\Users\\артем\\Desktop\\txt.txt");
+		bey.open("txt.txt");
 		if (bey.is_open())
 		{
 			cout << "Файл открыт. Считывание файла" << endl;
@@ -113,6 +115,7 @@ int main()
 {
 
 	setlocale(LC_ALL, "rus");
-	thread th(Potok_Two);
 	Potok_One();
+	thread th(Potok_Two);
+	
 }
