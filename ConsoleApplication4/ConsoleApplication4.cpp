@@ -1,20 +1,118 @@
-﻿// ConsoleApplication4.cpp : Этот файл содержит функцию "main". Здесь начинается и заканчивается выполнение программы.
-//
+﻿#include <iostream>
+#include<string>
+#include <fstream>
+#include <thread>
+#include <mutex>
+using namespace std;
+void Potok_One()
+{
+	while (true) {
+		cout << "Введите строку чисел" << endl;
+		string str;
+		getline(cin, str);
+		int i = 0;
+		while (i != str.length() - 1) //Проверка на кол-во символов и на наличие букв
+		{
 
-#include <iostream>
+			if (str.length() >= 64) // Если кол-во символов больше 64, то укорачивается до 64
+			{
+				str.erase(64, str.length());
+			}
+
+
+			if (isdigit(str[i]) == 0)
+			{
+				cout << "В строке есть буквы, введите строку занова" << endl;
+				str = "";
+				getline(cin, str);
+				i = -1;
+
+
+			}
+			i++;
+
+		}
+
+		for (int i = 0; i < str.length() - 1; i++) //сортировка по убыванию
+		{
+			for (int t = 0; t < str.length() - 1; t++)
+			{
+				if (str[t + 1] > str[t])
+				{
+					swap(str[t + 1], str[t]);
+
+				}
+
+			}
+		}
+		string str2 = str;
+		str = "";
+		for (int i = 0; i < str2.length(); i++) // Заменяем все четные элементы на "KB"
+		{
+			int q = str2[i] - '0';
+			if (q % 2 == 0)
+			{
+				str += "KB";
+			}
+			else
+			{
+				str += str2[i];
+			}
+		}
+
+		cout << endl;
+		ofstream bey;
+		bey.open("C:\\Users\\артем\\Desktop\\txt.txt");
+		if (bey.is_open()) {
+			cout << "Файл открыт. Запись запущена." << endl;
+			bey << str;
+			bey.close();
+		}
+		else
+			cout << "Файл не открыт" << endl;
+	}
+}
+
+
+void Potok_Two()
+{
+	while (true) {
+
+
+
+		string str1;
+
+		ifstream bey;
+		bey.open("C:\\Users\\артем\\Desktop\\txt.txt");
+		if (bey.is_open())
+		{
+			cout << "Файл открыт. Считывание файла" << endl;
+			bey >> str1;
+			bey.close();
+
+		}
+		else
+			cout << "Файл считывания не открыт" << endl;
+
+		int a = 0;
+
+		cout << str1 << endl;
+		for (int i = 0; i < str1.length(); i++)
+		{
+			if (isdigit(str1[i] != 0))
+			{
+				int q = str1[i] - '0';
+				a += q;
+			}
+		}
+		cout << a;
+	}
+}
 
 int main()
 {
-    std::cout << "Hello World!\n";
+
+	setlocale(LC_ALL, "rus");
+	thread th(Potok_Two);
+	Potok_One();
 }
-
-// Запуск программы: CTRL+F5 или меню "Отладка" > "Запуск без отладки"
-// Отладка программы: F5 или меню "Отладка" > "Запустить отладку"
-
-// Советы по началу работы 
-//   1. В окне обозревателя решений можно добавлять файлы и управлять ими.
-//   2. В окне Team Explorer можно подключиться к системе управления версиями.
-//   3. В окне "Выходные данные" можно просматривать выходные данные сборки и другие сообщения.
-//   4. В окне "Список ошибок" можно просматривать ошибки.
-//   5. Последовательно выберите пункты меню "Проект" > "Добавить новый элемент", чтобы создать файлы кода, или "Проект" > "Добавить существующий элемент", чтобы добавить в проект существующие файлы кода.
-//   6. Чтобы снова открыть этот проект позже, выберите пункты меню "Файл" > "Открыть" > "Проект" и выберите SLN-файл.
