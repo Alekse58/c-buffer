@@ -3,16 +3,31 @@
 #include <fstream>
 #include <thread>
 #include <mutex>
+#include <winsock2.h>
 
+
+#pragma comment(lib,"ws2_32.lib")
+#pragma warning(disable: 4996)
 
 using namespace std;
-void Potok_One()
-{
+
+
+
+void Potok_One(int &rey)
+{// ладноЩас увидишь все дпраодуманно	
+	// жду>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>пиши сюда
+
 	while (true) {
+		
+		char buffer[BUFSIZ];// объявление буфера
+		Sleep(1);
 		cout << "Введите строку чисел" << endl;
 		string str;
 		getline(cin, str);
 		int i = 0;
+		
+
+		//
 		while (i != str.length() - 1) //Проверка на кол-во символов и на наличие букв
 		{
 
@@ -63,27 +78,83 @@ void Potok_One()
 		}
 
 		cout << endl;
-		ofstream bey("txt.txt");
-		bey.open("txt.txt");
-		if (bey.is_open()) {
-			cout << "Файл открыт. Запись запущена." << endl;
-			bey << str;
-			bey.close();
+		if (rey == 0)
+		{
+			ofstream bey("txt.txt");
+			bey.open("txt.txt");
+			if (bey.is_open()) {
+				cout << "Файл открыт. Запись запущена." << endl;
+				bey << str;
+				bey.close();//  я пытался так, но по идее, поток каждый раз проверяет 1 поток, точнее его переменную, ЕСЛИ Я ПРАВИЛЬНО ДУМАЮ
+
+				rey = 1; // "Оповещает буфер о наличии данных"
+			}
+			else
+				cout << "Файл не открыт" << endl;
+			
+
+			FILE* ptrFile1; // готово. Тестиб :всё норм ?
+			setbuf(ptrFile1, buffer);
+			fputs("str", ptrFile1);// есть идеи ? Я ЕБЛАН
+
 		}
-		else
-			cout << "Файл не открыт" << endl;
 	}
+	
+}
+
+int Socket()
+{
+
+WSAData wsaData;
+WORD DLLVersions= MAKEWORD(2,1);
+if(WSAStartup(DLLVersions, &wsaData) !=0)
+{
+	cout << "Error" << endl;
+	exit(1);
+
+}
+
+SOCKADDR_IN addr;
+int sizeofaddr= sizeof(addr);
+addr.sin_addr.s_addr= inet_addr("127.0.0.1");
+addr.sin_port = htons(1111);
+addr.sin_family = AF_INET;
+SOCKET sListen = socket(AF_INET, SOCK_STREAM, NULL);
+bind(sListen, (SOCKADDR*)&addr, sizeof(addr));
+listen(sListen, SOMAXCONN);
+
+
+SOCKET ServConnections;
+ServConnnections = accept(sListen, (SOCKADDR*)&addr, &sizeofaddr);
+if(ServConnections ==0)
+{
+	cout << "ERROR!" << endl;
+	return 1;
+
+}
+else{
+	cout << "CONNECTION" << endl;
+	send(ServConnections, msg, sizeof(int),  NULL);
+
 }
 
 
-void Potok_Two()
+}
+
+
+void Potok_Two(int &rey)
 {
+	
+	
 	while (true) {
 
 
 
 		string str1;
+		while(rey!=1) // Цикл, который не дает опросить буфер, пока в него не подадутся данные
+		{
 
+		}
 		ifstream bey;
 		bey.open("txt.txt");
 		if (bey.is_open())
@@ -91,6 +162,7 @@ void Potok_Two()
 			cout << "Файл открыт. Считывание файла" << endl;
 			bey >> str1;
 			bey.close();
+			rey = 0; //  Возвращаю ноль, что бы все бесконечно шло по кругу
 
 		}
 		else
@@ -115,7 +187,8 @@ int main()
 {
 
 	setlocale(LC_ALL, "rus");
-	Potok_One();
-	thread th(Potok_Two);
+	int rey = 0;
+	Potok_One(rey);
+	thread th(Potok_Two, ref(rey));
 	
 }
